@@ -18,14 +18,26 @@ public abstract class AddButtonMixin extends Screen {
 		super(title);
 	}
 	
-	@ModifyVariable(at = @At(value = "FIELD", target = "Lnet/minecraft/screen/ScreenTexts;DISCONNECT:Lnet/minecraft/text/Text;"), method = "initWidgets")
-	private GridWidget.Adder addMultiplayerButtonMultiplayer(GridWidget.Adder adder) {
+	@ModifyVariable(
+		method = "initWidgets",
+		at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/client/gui/widget/GridWidget$Adder;add(Lnet/minecraft/client/gui/widget/Widget;)Lnet/minecraft/client/gui/widget/Widget;",
+			ordinal = 4,
+			shift = At.Shift.AFTER
+		))
+	private GridWidget.Adder addMultiplayerButtonMultiplayer4(GridWidget.Adder adder) {
 		addMultiplayerButton(adder);
 		return adder;
 	}
-
-	@ModifyVariable(at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screen/GameMenuScreen;RETURN_TO_MENU_TEXT:Lnet/minecraft/text/Text;"), method = "initWidgets")
-	private GridWidget.Adder addMultiplayerButtonSinglePlayer(GridWidget.Adder adder) {
+	
+	@ModifyVariable(
+		method = "initWidgets",
+		at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/client/gui/widget/GridWidget$Adder;add(Lnet/minecraft/client/gui/widget/Widget;)Lnet/minecraft/client/gui/widget/Widget;",
+			ordinal = 3,
+			shift = At.Shift.AFTER
+		))
+	private GridWidget.Adder addMultiplayerButtonMultiplayer3(GridWidget.Adder adder) {
 		addMultiplayerButton(adder);
 		return adder;
 	}

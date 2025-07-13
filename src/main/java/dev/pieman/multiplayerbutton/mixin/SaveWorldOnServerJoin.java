@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerServerListWidget;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,7 +37,7 @@ public class SaveWorldOnServerJoin extends Screen {
         } else {
             if (parent instanceof GameMenuScreen) {
                 ci.cancel();
-                client.disconnect();
+                client.disconnect(new MessageScreen(Text.translatable("menu.savingLevel")), false);
                 client.setScreen(new TitleScreen());
             }
         }
@@ -50,9 +51,9 @@ public class SaveWorldOnServerJoin extends Screen {
             assert client != null;
             if (client.world != null) {
                 assert MinecraftClient.getInstance().world != null;
-                MinecraftClient.getInstance().world.disconnect();
+                MinecraftClient.getInstance().world.disconnect(ClientWorld.QUITTING_MULTIPLAYER_TEXT);
                 if (bl1)
-                    MinecraftClient.getInstance().disconnect(new MessageScreen(Text.translatable("menu.savingLevel")));
+                    MinecraftClient.getInstance().disconnectWithSavingScreen();
             }
         }
         return entry;

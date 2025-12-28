@@ -23,7 +23,6 @@
       "dev.pieman.multiplayerbutton.AddButtonMixinInitializer"
     ]
   },
-  "accessWidener" : "multiplayerbutton.accesswidener",
   "mixins": [
     "multiplayerbutton.mixins.json"
   ],

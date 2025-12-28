@@ -1,58 +1,58 @@
 package dev.pieman.multiplayerbutton.mixin;
 
-import net.minecraft.client.gui.screen.GameMenuScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerWarningScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.GridWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.gui.screens.multiplayer.SafetyScreen;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(value = GameMenuScreen.class, priority = 9999)
+@Mixin(value = PauseScreen.class, priority = 9999)
 public abstract class AddButtonMixin extends Screen {
-	protected AddButtonMixin(Text title) {
+	protected AddButtonMixin(Component title) {
 		super(title);
 	}
 	
 	@ModifyVariable(
-		method = "initWidgets",
+		method = "createPauseMenu",
 		at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/client/gui/widget/GridWidget$Adder;add(Lnet/minecraft/client/gui/widget/Widget;)Lnet/minecraft/client/gui/widget/Widget;",
+			target = "Lnet/minecraft/client/gui/layouts/GridLayout$RowHelper;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;",
 			ordinal = 4,
 			shift = At.Shift.AFTER
 		))
-	private GridWidget.Adder addMultiplayerButtonMultiplayer4(GridWidget.Adder adder) {
+	private GridLayout.RowHelper addMultiplayerButtonMultiplayer4(GridLayout.RowHelper adder) {
 		addMultiplayerButton(adder);
 		return adder;
 	}
 	
 	@ModifyVariable(
-		method = "initWidgets",
+		method = "createPauseMenu",
 		at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/client/gui/widget/GridWidget$Adder;add(Lnet/minecraft/client/gui/widget/Widget;)Lnet/minecraft/client/gui/widget/Widget;",
+			target = "Lnet/minecraft/client/gui/layouts/GridLayout$RowHelper;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;",
 			ordinal = 3,
 			shift = At.Shift.AFTER
 		))
-	private GridWidget.Adder addMultiplayerButtonMultiplayer3(GridWidget.Adder adder) {
+	private GridLayout.RowHelper addMultiplayerButtonMultiplayer3(GridLayout.RowHelper adder) {
 		addMultiplayerButton(adder);
 		return adder;
 	}
 
 	@Unique
-	private void addMultiplayerButton(GridWidget.Adder adder) {
-		ButtonWidget multiplayerButton = this.addDrawableChild(ButtonWidget.builder(Text.translatable("menu.multiplayer"), (button) -> {
-			assert this.client != null;
-			if (this.client.options.skipMultiplayerWarning) {
-				client.setScreen(new MultiplayerScreen(this));
+	private void addMultiplayerButton(GridLayout.RowHelper adder) {
+		Button multiplayerButton = this.addRenderableWidget(Button.builder(Component.translatable("menu.multiplayer"), (button) -> {
+			assert this.minecraft != null;
+			if (this.minecraft.options.skipMultiplayerWarning) {
+				minecraft.setScreen(new JoinMultiplayerScreen(this));
 			} else {
-				client.setScreen(new MultiplayerWarningScreen(this));
+				minecraft.setScreen(new SafetyScreen(this));
 			}
 		}).width(204).build());
 
-		adder.add(multiplayerButton, 2);
+		adder.addChild(multiplayerButton, 2);
 	}
 }

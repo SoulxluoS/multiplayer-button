@@ -1,15 +1,14 @@
 package dev.pieman.multiplayerbutton.mixin;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.GameMenuScreen;
-import net.minecraft.client.gui.screen.MessageScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerServerListWidget;
-import net.minecraft.client.network.ServerInfo;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.GenericMessageScreen;
+import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,41 +16,41 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(MultiplayerScreen.class)
+@Mixin(JoinMultiplayerScreen.class)
 public class SaveWorldOnServerJoin extends Screen {
 
     @Shadow
     @Final
-    private Screen parent;
+    private Screen lastScreen;
 
-    protected SaveWorldOnServerJoin(Text title) {
+    protected SaveWorldOnServerJoin(Component title) {
         super(title);
     }
 
-    @Inject(at = @At(value = "HEAD"), method = "method_19912(Lnet/minecraft/client/gui/widget/ButtonWidget;)V", cancellable = true)
+    @Inject(at = @At(value = "HEAD"), method = "method_19912(Lnet/minecraft/client/gui/components/Button;)V", cancellable = true)
     private void modifyCancelButton(CallbackInfo ci) {
-        assert client != null;
-        if (client.isInSingleplayer()) {
+        assert minecraft != null;
+        if (minecraft.isLocalServer()) {
             ci.cancel();
-            client.setScreen(parent);
+            minecraft.setScreen(lastScreen);
         } else {
-            if (parent instanceof GameMenuScreen) {
+            if (lastScreen instanceof PauseScreen) {
                 ci.cancel();
-                client.disconnect(new MessageScreen(Text.translatable("menu.savingLevel")), false);
-                client.setScreen(new TitleScreen());
+                minecraft.disconnect(new GenericMessageScreen(Component.translatable("menu.savingLevel")), false);
+                minecraft.setScreen(new TitleScreen());
             }
         }
     }
 
-    @Inject(at = @At(value = "HEAD"), method = "connect")
-    private void addMultiplayerButtonSinglePlayer(ServerInfo entry, CallbackInfo ci) {
-        boolean bl1 = MinecraftClient.getInstance().isInSingleplayer();
-        assert client != null;
-        if (client.world != null) {
-            assert MinecraftClient.getInstance().world != null;
-            MinecraftClient.getInstance().world.disconnect(ClientWorld.QUITTING_MULTIPLAYER_TEXT);
+    @Inject(at = @At(value = "HEAD"), method = "join")
+    private void addMultiplayerButtonSinglePlayer(ServerData entry, CallbackInfo ci) {
+        boolean bl1 = Minecraft.getInstance().isLocalServer();
+        assert minecraft != null;
+        if (minecraft.level != null) {
+            assert Minecraft.getInstance().level != null;
+            Minecraft.getInstance().level.disconnect(ClientLevel.DEFAULT_QUIT_MESSAGE);
             if (bl1)
-                MinecraftClient.getInstance().disconnectWithSavingScreen();
+                Minecraft.getInstance().disconnectWithSavingScreen();
         }
     }
 }

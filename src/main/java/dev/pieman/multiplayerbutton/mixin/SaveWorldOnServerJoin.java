@@ -1,10 +1,7 @@
 package dev.pieman.multiplayerbutton.mixin;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.GenericMessageScreen;
-import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ServerData;
@@ -30,16 +27,8 @@ public class SaveWorldOnServerJoin extends Screen {
     @Inject(at = @At(value = "HEAD"), method = "method_19912(Lnet/minecraft/client/gui/components/Button;)V", cancellable = true)
     private void modifyCancelButton(CallbackInfo ci) {
         assert minecraft != null;
-        if (minecraft.isLocalServer()) {
-            ci.cancel();
-            minecraft.setScreen(lastScreen);
-        } else {
-            if (lastScreen instanceof PauseScreen) {
-                ci.cancel();
-                minecraft.disconnect(new GenericMessageScreen(Component.translatable("menu.savingLevel")), false);
-                minecraft.setScreen(new TitleScreen());
-            }
-        }
+        ci.cancel();
+        minecraft.setScreen(lastScreen);
     }
 
     @Inject(at = @At(value = "HEAD"), method = "join")
